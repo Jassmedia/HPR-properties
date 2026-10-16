@@ -1,0 +1,71 @@
+---
+import Icon from './Icon.astro';
+import { whatsappLink, photo, photoSrcset } from '../data/site';
+
+interface Props {
+  title?: string;
+  text?: string;
+  image?: string;
+  whatsappText?: string;
+}
+const {
+  title = 'Looking for a Property in Dubai?',
+  text = 'Tell us your requirements and our team will help you explore relevant options.',
+  image = '1518684079-3c830dcef090',
+  whatsappText = 'Hello HPR Properties, I am looking for a property in Dubai.',
+} = Astro.props;
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <div class="container">
+    <div class="cta__card reveal">
+      <div class="cta__content on-dark">
+        <p class="eyebrow">Get in touch</p>
+        <h2 id="cta-title">{title}</h2>
+        <p>{text}</p>
+        <div class="cta__buttons">
+          <a href="/contact" class="btn btn--light">Contact HPR Properties</a>
+          <a href={whatsappLink(whatsappText)} class="btn btn--outline-light" target="_blank" rel="noopener">
+            <Icon name="whatsapp" size={18} /> WhatsApp Us
+          </a>
+        </div>
+      </div>
+      <div class="cta__media">
+        <img
+          src={photo(image, 900, 760)}
+          srcset={photoSrcset(image, [600, 900, 1300], 900 / 760)}
+          sizes="(max-width: 860px) 100vw, 45vw"
+          alt="Burj Al Arab seen from above, surrounded by the sea"
+          width="900"
+          height="760"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta { padding-block: var(--section-y); }
+  .cta__card {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; overflow: hidden;
+    border-radius: calc(var(--radius-lg) + 6px); background: var(--c-ink);
+  }
+  .cta__content {
+    display: grid; gap: 1.1rem; align-content: center; justify-items: start;
+    padding: clamp(2.5rem, 2rem + 4vw, 5.5rem) clamp(1.5rem, 1rem + 4vw, 4.5rem);
+  }
+  .cta__content h2 { font-size: var(--fs-xl); }
+  .cta__content p:not(.eyebrow) { color: rgba(255, 255, 255, 0.78); font-size: var(--fs-md); max-width: 46ch; }
+  .cta__buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+  .cta__media { position: relative; min-height: 340px; }
+  .cta__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .cta__card:hover .cta__media img { transform: scale(1.03); }
+
+  @media (max-width: 860px) {
+    .cta__card { grid-template-columns: 1fr; }
+    .cta__media { min-height: 240px; }
+  }
+  @media (max-width: 560px) { .cta__buttons .btn { flex: 1 1 100%; } }
+</style>

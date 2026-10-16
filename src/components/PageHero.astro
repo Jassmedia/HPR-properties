@@ -1,0 +1,69 @@
+---
+/** Inner-page header: breadcrumb, eyebrow, title, intro, optional background photo. */
+import { photo, photoSrcset } from '../data/site';
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  intro?: string;
+  image?: string; // Unsplash id
+  crumbs?: { label: string; href?: string }[];
+}
+const { title, eyebrow, intro, image, crumbs = [] } = Astro.props;
+const trail = [{ label: 'Home', href: '/' }, ...crumbs, { label: title }];
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: trail.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    ...(('href' in c && c.href) ? { item: new URL(c.href, Astro.site).href } : {}),
+  })),
+};
+---
+
+<section class:list={['phero', { 'phero--image': image }]}>
+  {image && (
+    <div class="phero__media">
+      <img src={photo(image, 1920, 760)} srcset={photoSrcset(image, [828, 1280, 1920], 2.5)} sizes="100vw" alt="" width="1920" height="760" fetchpriority="high" />
+    </div>
+  )}
+  <div class:list={['container phero__inner', { 'on-dark': image }]}>
+    <nav aria-label="Breadcrumb" class="crumbs">
+      <ol>
+        {trail.map((c, i) => (
+          <li>{c.href && i < trail.length - 1 ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>
+        ))}
+      </ol>
+    </nav>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {intro && <p class="phero__intro">{intro}</p>}
+    <slot />
+  </div>
+</section>
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+<style>
+  .phero { position: relative; isolation: isolate; background: var(--c-sand); padding-block: clamp(3rem, 2rem + 4vw, 5.5rem); }
+  .phero--image { color: #fff; padding-block: clamp(4.5rem, 3rem + 6vw, 8rem); background: var(--c-ink); }
+  .phero__media { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .phero__media img { width: 100%; height: 100%; object-fit: cover; }
+  .phero__media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(14,16,19,.85), rgba(14,16,19,.55) 60%, rgba(14,16,19,.3)); }
+  .phero__inner { display: grid; gap: 1rem; justify-items: start; }
+  .phero__inner > * { max-width: 760px; }
+  .phero h1 { font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.6rem); letter-spacing: -0.03em; line-height: 1.08; }
+  .phero__intro { font-size: var(--fs-md); color: var(--c-muted); }
+  .phero--image .phero__intro { color: rgba(255,255,255,.8); }
+  .phero--image .eyebrow { color: #fff; }
+
+  .crumbs ol { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0 0 0.5rem; padding: 0; font-size: var(--fs-sm); color: var(--c-muted); }
+  .phero--image .crumbs ol { color: rgba(255,255,255,.65); }
+  .crumbs li + li::before { content: '/'; margin-right: 0.4rem; opacity: 0.5; }
+  .crumbs a:hover { color: var(--c-ink); text-decoration: underline; }
+  .phero--image .crumbs a:hover { color: #fff; }
+  .crumbs [aria-current] { color: var(--c-ink); }
+  .phero--image .crumbs [aria-current] { color: #fff; }
+</style>

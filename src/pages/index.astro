@@ -1,0 +1,454 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import PropertySearch from '../components/PropertySearch.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import FounderBlock from '../components/FounderBlock.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { site, whatsappLink, photo, photoSrcset } from '../data/site';
+import { properties } from '../data/properties';
+import { categories, whyChoose, services, areas, steps, faqs, testimonials } from '../data/home';
+
+const featured = properties.filter((p) => p.featured).slice(0, 6);
+const shownAreas = areas.filter((a) => a.published);
+const heroImg = '1512453979798-5ea266f8880c';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<BaseLayout
+  description="Find your dream property in Dubai with HPR Properties. Explore apartments, villas, off-plan developments and rental homes with clear information and personal guidance."
+>
+  <link slot="head" rel="preload" as="image" href={photo(heroImg, 1920)} imagesrcset={photoSrcset(heroImg, [828, 1280, 1920, 2560])} imagesizes="100vw" />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <!-- 1. HERO -->
+  <section class="hero" aria-labelledby="hero-title" data-nav="/">
+    <div class="hero__media">
+      <img
+        src={photo(heroImg, 1920)}
+        srcset={photoSrcset(heroImg, [828, 1280, 1920, 2560])}
+        sizes="100vw"
+        alt="Dubai skyline with Burj Khalifa at dusk"
+        width="1920"
+        height="1280"
+        fetchpriority="high"
+      />
+    </div>
+    <div class="container hero__content on-dark">
+      <p class="eyebrow">{site.tagline}</p>
+      <h1 id="hero-title">Find Your Dream Property in&nbsp;Dubai.</h1>
+      <p class="hero__lead">
+        Discover apartments, villas, off-plan developments, rental homes, and property opportunities with guidance from HPR Properties.
+      </p>
+      <div class="hero__ctas">
+        <a href="/properties" class="btn btn--light">Explore Properties <Icon name="arrow" size={18} /></a>
+        <a href="/contact" class="btn btn--outline-light">Contact an Agent</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SEARCH -->
+  <section class="search-wrap" aria-label="Search properties">
+    <div class="container">
+      <PropertySearch />
+    </div>
+  </section>
+
+  <!-- 3. CATEGORIES -->
+  <section class="section categories" aria-labelledby="cat-title" data-nav="/properties">
+    <div class="container">
+      <div class="heading-row">
+        <div class="heading reveal">
+          <p class="eyebrow">Browse by category</p>
+          <h2 id="cat-title">Find the property type that fits your plans</h2>
+        </div>
+      </div>
+      <ul class="cat-grid">
+        {categories.map((c, i) => (
+          <li class="reveal" style={`transition-delay:${i * 50}ms`}>
+            <a href={c.href} class="cat-tile">
+              <img src={photo(c.image, 640, 760)} alt="" width="640" height="760" loading="lazy" decoding="async" />
+              <span class="cat-tile__label">{c.label}</span>
+              <span class="cat-tile__arrow"><Icon name="arrowUpRight" size={18} /></span>
+            </a>
+          </li>
+        ))}
+        <li class="reveal" style="transition-delay:350ms">
+          <a href="/properties" class="cat-tile cat-tile--all">
+            <span class="cat-tile__all-text">
+              <span>View all</span>
+              <span>properties</span>
+            </span>
+            <span class="cat-tile__arrow"><Icon name="arrow" size={18} /></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. FEATURED PROPERTIES -->
+  <section class="section section--sand featured" aria-labelledby="feat-title" data-nav="/properties">
+    <div class="container">
+      <div class="heading-row">
+        <div class="heading reveal">
+          <p class="eyebrow">Featured</p>
+          <h2 id="feat-title">Featured Properties</h2>
+          <p>Explore selected properties currently available through HPR Properties.</p>
+        </div>
+        <a href="/properties?featured=1" class="link-arrow reveal">View All Properties <Icon name="arrow" size={16} /></a>
+      </div>
+      {site.isDraft && (
+        <p class="draft-note featured__note">
+          These are clearly labelled sample listings to preview the layout. They will be replaced with verified HPR listings, photos and prices.
+        </p>
+      )}
+      <ul class="feat-grid" aria-label="Featured property listings">
+        {featured.map((p) => <li><PropertyCard property={p} /></li>)}
+      </ul>
+      <p class="featured__disclaimer">Prices and availability can change and should be reconfirmed with the HPR Properties team.</p>
+    </div>
+  </section>
+
+  <!-- 5. WHY CHOOSE -->
+  <section class="section why" aria-labelledby="why-title" data-nav="/about">
+    <div class="container why__inner">
+      <div class="heading reveal">
+        <p class="eyebrow">Why HPR Properties</p>
+        <h2 id="why-title">Why Choose HPR Properties?</h2>
+        <p>A simple, organised property search — with clear information and a team you can talk to.</p>
+      </div>
+      <ul class="why__grid">
+        {whyChoose.map((w, i) => (
+          <li class="why__item reveal" style={`transition-delay:${i * 80}ms`}>
+            <span class="why__icon"><Icon name={w.icon} size={22} /></span>
+            <h3>{w.title}</h3>
+            <p>{w.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6. ABOUT PREVIEW -->
+  <section class="section section--sand about" aria-labelledby="about-title" data-nav="/about">
+    <div class="container about__inner">
+      <div class="about__media reveal">
+        <img src={photo('1582672060674-bc2bd808a8b5', 900, 1080)} alt="Burj Khalifa rising above palm trees in Downtown Dubai" width="900" height="1080" loading="lazy" decoding="async" />
+        <img class="about__media-sm" src={photo('1600607687939-ce8a6c25118c', 520, 400)} alt="" width="520" height="400" loading="lazy" decoding="async" />
+      </div>
+      <div class="about__text reveal">
+        <p class="eyebrow">About us</p>
+        <h2 id="about-title">Helping you explore Dubai real estate with clarity</h2>
+        <p class="about__lead">
+          HPR Properties helps individuals, families, and investors explore real-estate opportunities in Dubai. Our aim is to make the property search organised and convenient by sharing relevant options, clear information, and personal guidance through the enquiry process.
+        </p>
+        <dl class="about__values">
+          <div><dt>Our Mission</dt><dd>To help clients make confident, well-informed property decisions.</dd></div>
+          <div><dt>Our Vision</dt><dd>To build lasting relationships and become a trusted name in real estate.</dd></div>
+        </dl>
+        <a href="/about" class="btn">Learn More About Us <Icon name="arrow" size={18} /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. SERVICES -->
+  <section class="section section--dark services" aria-labelledby="svc-title" data-nav="/services">
+    <div class="container">
+      <div class="heading-row">
+        <div class="heading reveal">
+          <p class="eyebrow">Our services</p>
+          <h2 id="svc-title">Support for every step of your property journey</h2>
+        </div>
+        <a href="/services" class="btn btn--outline-light reveal">All Services <Icon name="arrow" size={18} /></a>
+      </div>
+      <ul class="svc-grid">
+        {services.map((s, i) => (
+          <li class="reveal" style={`transition-delay:${i * 60}ms`}>
+            <a href={`/services#${s.id}`} class="svc-card">
+              <span class="svc-card__icon"><Icon name={s.icon} size={24} /></span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+              <span class="svc-card__more">Learn more <Icon name="arrow" size={16} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8. LOCATIONS -->
+  {shownAreas.length > 0 && (
+    <section class="section areas" aria-labelledby="areas-title" data-nav="/areas">
+      <div class="container">
+        <div class="heading-row">
+          <div class="heading reveal">
+            <p class="eyebrow">Explore Dubai</p>
+            <h2 id="areas-title">Explore properties by location</h2>
+          </div>
+          <a href="/areas" class="link-arrow reveal">All Areas <Icon name="arrow" size={16} /></a>
+        </div>
+        <ul class="areas-grid">
+          {shownAreas.map((a, i) => (
+            <li class={`reveal areas-grid__item areas-grid__item--${i + 1}`} style={`transition-delay:${i * 60}ms`}>
+              <a href={`/properties?location=${encodeURIComponent(a.name)}`} class="area-card">
+                <img src={photo(a.image, i === 0 ? 1000 : 700, i === 0 ? 1100 : 560)} alt={`${a.name}, Dubai`} width="700" height="560" loading="lazy" decoding="async" />
+                <span class="area-card__body">
+                  <span class="area-card__name">{a.name}</span>
+                  <span class="area-card__cta">View properties <Icon name="arrow" size={16} /></span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- 9. HOW IT WORKS -->
+  <section class="section section--sand how" aria-labelledby="how-title" data-nav="/services">
+    <div class="container">
+      <div class="heading heading--center reveal">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">Four simple steps</h2>
+      </div>
+      <ol class="how__steps">
+        {steps.map((s, i) => (
+          <li class="how__step reveal" style={`transition-delay:${i * 90}ms`}>
+            <span class="how__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="how__note">A viewing is not confirmed until the HPR Properties team confirms it.</p>
+    </div>
+  </section>
+
+  <!-- 10. FOUNDER -->
+  <div data-nav="/about"><FounderBlock showLink /></div>
+
+  <!-- 11. TESTIMONIALS — rendered only when genuine, approved reviews exist -->
+  {testimonials.length > 0 && (
+    <section class="section section--sand" aria-labelledby="testi-title">
+      <div class="container">
+        <div class="heading heading--center"><p class="eyebrow">Client stories</p><h2 id="testi-title">What our clients say</h2></div>
+        <ul class="testi-grid">
+          {testimonials.map((t) => (
+            <li><figure><blockquote>{t.quote}</blockquote><figcaption>{t.name}{t.context && <span> · {t.context}</span>}</figcaption></figure></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- 12. FAQ -->
+  <section class="section section--sand faq" aria-labelledby="faq-title" data-nav="/contact">
+    <div class="container faq__inner">
+      <div class="heading reveal">
+        <p class="eyebrow">FAQs</p>
+        <h2 id="faq-title">Frequently asked questions</h2>
+        <p>Can't find what you're looking for? Our team is happy to help.</p>
+        <div class="faq__contact">
+          <a href={site.contact.phoneHref} class="btn btn--ghost btn--sm"><Icon name="phone" size={16} /> {site.contact.phoneDisplay}</a>
+        </div>
+      </div>
+      <div class="faq__list reveal">
+        {faqs.map((f, i) => (
+          <details class="faq__item" open={i === 0}>
+            <summary>
+              <span>{f.q}</span>
+              <span class="faq__toggle" aria-hidden="true"><Icon name="plus" size={18} /></span>
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. FINAL CTA -->
+  <div data-nav="/contact"><CtaBand /></div>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative; isolation: isolate; display: flex; align-items: center;
+    min-height: min(86vh, 860px); padding-block: 7rem 9.5rem; color: #fff; overflow: hidden;
+  }
+  .hero__media { position: absolute; inset: 0; z-index: -1; background: var(--c-ink); }
+  .hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 60%; animation: heroZoom 18s var(--ease) both; }
+  .hero__media::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(14, 16, 19, 0.82) 0%, rgba(14, 16, 19, 0.55) 45%, rgba(14, 16, 19, 0.1) 100%),
+      linear-gradient(0deg, rgba(14, 16, 19, 0.55) 0%, rgba(14, 16, 19, 0) 40%);
+  }
+  @keyframes heroZoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+  .hero__content { display: grid; gap: 1.4rem; justify-items: start; }
+  .hero__content > * { max-width: 680px; }
+  .hero h1 { color: #fff; font-size: var(--fs-hero); font-weight: 600; line-height: 1.05; letter-spacing: -0.03em; }
+  .hero .eyebrow { color: #fff; }
+  .hero__lead { font-size: var(--fs-md); color: rgba(255, 255, 255, 0.82); max-width: 54ch; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+  /* Image shows first; text follows after 2s */
+  .hero__content > * { animation: heroIn 1s var(--ease) 2s both; }
+  .hero__content > :nth-child(2) { animation-delay: 2.15s; }
+  .hero__content > :nth-child(3) { animation-delay: 2.3s; }
+  .hero__content > :nth-child(4) { animation-delay: 2.45s; }
+  @media (prefers-reduced-motion: reduce) { .hero__content > * { animation: none; } }
+  @keyframes heroIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  .search-wrap { position: relative; z-index: 2; margin-top: -5.5rem; }
+
+  /* ---------- Categories ---------- */
+  .categories { padding-top: clamp(4rem, 3rem + 4vw, 6.5rem); }
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .cat-tile {
+    position: relative; display: block; aspect-ratio: 5 / 4; overflow: hidden; border-radius: var(--radius);
+    background: var(--c-ink); color: #fff; isolation: isolate;
+  }
+  .cat-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; transition: transform 0.9s var(--ease); }
+  .cat-tile::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, rgba(14, 16, 19, 0.72), rgba(14, 16, 19, 0) 60%); }
+  .cat-tile:hover img { transform: scale(1.06); }
+  .cat-tile__label { position: absolute; left: 1.1rem; bottom: 1rem; right: 3.5rem; font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; line-height: 1.25; }
+  .cat-tile__arrow {
+    position: absolute; right: 0.9rem; bottom: 0.9rem; display: grid; place-items: center; width: 36px; height: 36px;
+    border-radius: 50%; background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(6px);
+    transition: background-color 0.3s, color 0.3s, transform 0.3s var(--ease);
+  }
+  .cat-tile:hover .cat-tile__arrow { background: var(--c-yellow); color: var(--c-ink); transform: rotate(45deg); }
+  .cat-tile--all { background: var(--c-ink); }
+  .cat-tile--all::after { display: none; }
+  .cat-tile__all-text { position: absolute; left: 1.25rem; top: 1.2rem; display: grid; font-family: var(--font-display); font-size: 1.4rem; font-weight: 500; line-height: 1.2; }
+  .cat-tile__all-text span:last-child { color: rgba(255, 255, 255, 0.55); }
+  .cat-tile--all:hover .cat-tile__arrow { transform: none; }
+
+  /* ---------- Featured ---------- */
+  .featured__note { margin-bottom: 1.5rem; }
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .featured__disclaimer { margin-top: 1.75rem; font-size: var(--fs-sm); color: var(--c-muted); }
+
+  /* ---------- Why ---------- */
+  .why__inner { display: grid; grid-template-columns: 0.9fr 1.6fr; gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .why__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--c-line); border: 1px solid var(--c-line); border-radius: var(--radius-lg); overflow: hidden; }
+  .why__item { background: #fff; padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem); display: grid; gap: 0.6rem; align-content: start; }
+  .why__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--c-teal-soft); color: var(--c-teal-ink); margin-bottom: 0.5rem; }
+  .why__item h3 { font-size: 1.15rem; font-weight: 500; }
+  .why__item p { color: var(--c-muted); }
+
+  /* ---------- About ---------- */
+  .about__inner { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 1rem + 5vw, 6rem); align-items: center; }
+  .about__media { position: relative; padding-right: 18%; padding-bottom: 12%; }
+  .about__media > img:first-child { width: 100%; aspect-ratio: 5 / 6; object-fit: cover; border-radius: var(--radius-lg); }
+  .about__media-sm {
+    position: absolute; right: 0; bottom: 0; width: 46%; aspect-ratio: 13 / 10; object-fit: cover;
+    border-radius: var(--radius); border: 6px solid var(--c-sand); box-shadow: var(--shadow);
+  }
+  .about__text { display: grid; gap: 1.25rem; justify-items: start; }
+  .about__text h2 { font-size: var(--fs-xl); }
+  .about__lead { font-size: var(--fs-md); }
+  .about__values { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 0.5rem 0 0.75rem; padding-top: 1.25rem; border-top: 1px solid var(--c-line); }
+  .about__values dt { font-family: var(--font-display); font-weight: 600; color: var(--c-ink); margin-bottom: 0.3rem; }
+  .about__values dd { margin: 0; color: var(--c-muted); font-size: 0.95rem; }
+
+  /* ---------- Services ---------- */
+  .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .svc-card {
+    display: grid; gap: 0.7rem; align-content: start; height: 100%; padding: 2rem 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); background: rgba(255, 255, 255, 0.025);
+    transition: background-color 0.3s, border-color 0.3s, transform 0.35s var(--ease);
+  }
+  .svc-card:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.22); transform: translateY(-3px); }
+  .svc-card__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: rgba(21, 151, 163, 0.16); color: #7fd0d7; margin-bottom: 0.6rem; }
+  .svc-card h3 { font-size: 1.2rem; font-weight: 500; }
+  .svc-card p { color: rgba(255, 255, 255, 0.64); }
+  .svc-card__more { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; font-size: var(--fs-sm); font-weight: 500; color: #fff; }
+  .svc-card__more .icon { transition: transform 0.25s var(--ease); }
+  .svc-card:hover .svc-card__more .icon { transform: translateX(4px); }
+  .svc-card:hover .svc-card__icon { background: var(--c-yellow); color: var(--c-ink); }
+
+  /* ---------- Areas ---------- */
+  .areas-grid { display: grid; grid-template-columns: 1.25fr 1fr 1fr; grid-template-rows: repeat(2, minmax(220px, 1fr)); gap: 1rem; }
+  .areas-grid__item--1 { grid-row: span 2; }
+  .area-card { position: relative; display: block; height: 100%; min-height: 220px; overflow: hidden; border-radius: var(--radius-lg); color: #fff; isolation: isolate; background: var(--c-ink); }
+  .area-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; transition: transform 1s var(--ease); }
+  .area-card::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, rgba(14, 16, 19, 0.75), rgba(14, 16, 19, 0) 55%); }
+  .area-card:hover img { transform: scale(1.06); }
+  .area-card__body { position: absolute; left: 1.4rem; right: 1.4rem; bottom: 1.25rem; display: grid; gap: 0.2rem; }
+  .area-card__name { font-family: var(--font-display); font-size: 1.35rem; font-weight: 500; }
+  .areas-grid__item--1 .area-card__name { font-size: 1.8rem; }
+  .area-card__cta { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--fs-sm); color: rgba(255, 255, 255, 0.8); }
+  .area-card:hover .area-card__cta { color: var(--c-yellow); }
+
+  /* ---------- How ---------- */
+  .how__steps { counter-reset: none; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; position: relative; }
+  .how__step { position: relative; padding: 2rem 1.6rem; background: #fff; border-radius: var(--radius-lg); display: grid; gap: 0.6rem; align-content: start; }
+  .how__num { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; color: var(--c-teal-ink); display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+  .how__num::after { content: ''; flex: 1; width: 40px; height: 1px; background: var(--c-line); }
+  .how__step h3 { font-size: 1.12rem; font-weight: 500; }
+  .how__step p { color: var(--c-muted); font-size: 0.95rem; }
+  .how__note { margin-top: 1.75rem; text-align: center; font-size: var(--fs-sm); color: var(--c-muted); }
+
+  /* ---------- FAQ ---------- */
+  .faq__inner { display: grid; grid-template-columns: 0.85fr 1.4fr; gap: clamp(2rem, 1rem + 5vw, 6rem); align-items: start; }
+  .faq__contact { margin-top: 0.5rem; }
+  .faq__list { border-top: 1px solid #ddd8cf; }
+  .faq__item { border-bottom: 1px solid #ddd8cf; }
+  .faq__item summary {
+    display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding: 1.4rem 0;
+    cursor: pointer; list-style: none; font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; color: var(--c-ink);
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__toggle { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #d4cfc5; transition: transform 0.3s var(--ease), background-color 0.3s, border-color 0.3s; }
+  .faq__item[open] .faq__toggle { transform: rotate(45deg); background: var(--c-ink); border-color: var(--c-ink); color: #fff; }
+  .faq__item p { padding: 0 3.5rem 1.5rem 0; color: var(--c-muted); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1080px) {
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
+    .cat-grid > li:last-child { grid-column: span 2; }
+    .feat-grid { grid-template-columns: repeat(2, 1fr); }
+    .svc-grid { grid-template-columns: repeat(2, 1fr); }
+    .how__steps { grid-template-columns: repeat(2, 1fr); }
+    .why__inner, .faq__inner { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 820px) {
+    .about__inner { grid-template-columns: 1fr; }
+    .areas-grid { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+    .areas-grid__item--1 { grid-column: 1 / -1; grid-row: auto; }
+    .areas-grid__item--1 .area-card { min-height: 320px; }
+  }
+  @media (max-width: 700px) {
+    /* Swipeable featured cards on mobile */
+    .feat-grid {
+      grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%;
+      overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem;
+      margin-inline: calc(var(--gutter) * -1); padding: 0.25rem var(--gutter) 1rem; scrollbar-width: none;
+    }
+    .feat-grid::-webkit-scrollbar { display: none; }
+    .feat-grid > li { scroll-snap-align: center; }
+  }
+  @media (max-width: 560px) {
+    .hero { min-height: 0; padding-block: 4.5rem 8rem; }
+    .hero__ctas .btn { flex: 1 1 100%; }
+    .search-wrap { margin-top: -5rem; }
+    .cat-grid { grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .cat-grid > li:last-child { grid-column: auto; }
+    .cat-tile { aspect-ratio: 4 / 5; }
+    .cat-tile__label { font-size: 0.95rem; left: 0.85rem; bottom: 0.85rem; right: 0.85rem; }
+    .cat-tile__arrow { display: none; }
+    .cat-tile--all .cat-tile__arrow { display: grid; }
+    .why__grid { grid-template-columns: 1fr; }
+    .svc-grid { grid-template-columns: 1fr; }
+    .how__steps { grid-template-columns: 1fr; }
+    .areas-grid { grid-template-columns: 1fr; }
+    .about__values { grid-template-columns: 1fr; }
+    .faq__item p { padding-right: 0; }
+  }
+</style>

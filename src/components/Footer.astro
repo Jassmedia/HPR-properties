@@ -1,0 +1,150 @@
+---
+import Icon from './Icon.astro';
+import { site, whatsappLink } from '../data/site';
+
+const year = new Date().getFullYear();
+const socials = site.socials.filter((s) => s.url);
+
+const columns = [
+  {
+    title: 'Properties',
+    links: [
+      { label: 'Buy', href: '/properties?purpose=buy' },
+      { label: 'Rent', href: '/properties?purpose=rent' },
+      { label: 'Off-Plan', href: '/properties?purpose=off-plan' },
+      { label: 'Featured Properties', href: '/properties?featured=1' },
+      { label: 'List Your Property', href: '/contact?enquiry=sell' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About Us', href: '/about' },
+      { label: 'Our Services', href: '/services' },
+      ...(site.features.holidayHomes ? [{ label: 'Airbnb / Holiday Homes', href: '/holiday-homes' }] : []),
+      { label: 'Invest in Dubai', href: '/invest-in-dubai' },
+      { label: 'Dubai Areas', href: '/areas' },
+      { label: 'Founder & Team', href: '/founder' },
+      { label: 'Contact Us', href: '/contact' },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo" aria-label={`${site.name} — home`}>
+          <img src="/images/hpr-logo.webp" alt="HPR Properties Dubai logo" width="88" height="88" loading="lazy" />
+        </a>
+        <p class="footer-tagline">{site.tagline}.</p>
+        {socials.length > 0 && (
+          <div class="footer-social">
+            <p class="footer-social__title">Follow HPR Properties</p>
+            <ul>
+              {socials.map((s) => (
+                <li>
+                  <a href={s.url} target="_blank" rel="noopener" aria-label={s.name}>
+                    <Icon name={s.icon} size={18} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {columns.map((col) => (
+        <nav class="footer-col" aria-label={col.title}>
+          <h2 class="footer-col__title">{col.title}</h2>
+          <ul>
+            {col.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </nav>
+      ))}
+
+      <div class="footer-col footer-contact">
+        <h2 class="footer-col__title">Contact</h2>
+        <address>
+          <p class="footer-contact__row">
+            <Icon name="pin" size={18} />
+            <span>
+              <strong>{site.contact.office.title}</strong><br />
+              {site.contact.office.lines.map((l, i) => <Fragment>{l}{i < site.contact.office.lines.length - 1 && <br />}</Fragment>)}
+            </span>
+          </p>
+          <a class="footer-contact__row" href={site.contact.phoneHref}>
+            <Icon name="phone" size={18} /><span>{site.contact.phoneDisplay}</span>
+          </a>
+          <a class="footer-contact__row" href={whatsappLink()} target="_blank" rel="noopener">
+            <Icon name="whatsapp" size={18} /><span>WhatsApp us</span>
+          </a>
+          <a class="footer-contact__row" href={`mailto:${site.contact.email}`}>
+            <Icon name="mail" size={18} /><span>{site.contact.email}</span>
+          </a>
+        </address>
+      </div>
+    </div>
+
+    {site.isDraft && (
+      <p class="footer-licence">
+        Licensing &amp; advertising disclosures (e.g. RERA / ORN / permit numbers) to be added once supplied by HPR Properties.
+      </p>
+    )}
+
+    <div class="footer-bottom">
+      <p>© {year} {site.name}. All rights reserved.</p>
+      <ul>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--c-ink); color: rgba(255, 255, 255, 0.66); padding-top: clamp(3.5rem, 3rem + 3vw, 5.5rem); font-size: 0.94rem; }
+  .footer-top { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1.4fr; gap: 2.5rem; padding-bottom: 3rem; }
+  .footer-logo img { width: 88px; height: 88px; border-radius: 16px; }
+  .footer-tagline { margin-top: 1.25rem; max-width: 26ch; font-family: var(--font-display); font-size: 1.1rem; line-height: 1.4; color: #fff; }
+  .footer-social { margin-top: 1.75rem; }
+  .footer-social__title { font-size: var(--fs-xs); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .footer-social ul { display: flex; gap: 0.5rem; }
+  .footer-social a {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18); color: #fff; transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .footer-social a:hover { background: var(--c-yellow); border-color: var(--c-yellow); color: var(--c-ink); }
+
+  .footer-col__title {
+    font-family: var(--font-display); font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #fff; margin-bottom: 1.1rem;
+  }
+  .footer-col ul { display: grid; gap: 0.6rem; }
+  .footer-col a { transition: color 0.2s; }
+  .footer-col a:hover { color: #fff; }
+
+  .footer-contact address { font-style: normal; display: grid; gap: 0.9rem; }
+  .footer-contact__row { display: flex; gap: 0.75rem; align-items: flex-start; line-height: 1.55; }
+  .footer-contact__row .icon { flex: none; margin-top: 2px; color: var(--c-teal); }
+  .footer-contact__row strong { color: #fff; font-weight: 500; }
+  a.footer-contact__row:hover { color: #fff; }
+
+  .footer-licence { padding: 1rem 0; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: var(--fs-sm); color: #e9df70; }
+  .footer-bottom {
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    padding-block: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: var(--fs-sm);
+  }
+  .footer-bottom ul { display: flex; gap: 1.5rem; }
+  .footer-bottom a:hover { color: #fff; }
+
+  @media (max-width: 960px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 560px) {
+    .footer-top { grid-template-columns: 1fr; }
+    .site-footer { padding-bottom: 72px; } /* space for mobile action bar */
+  }
+</style>

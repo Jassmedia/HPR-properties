@@ -1,0 +1,17 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+
+const sections = [
+  { id: 'about', title: 'About these terms', body: ['These terms apply to your use of the HPR Properties website. By using the website you agree to them. [Registered company name and licence details to be confirmed.]'] },
+  { id: 'listings', title: 'Property information', body: ['Property details, prices and availability are provided for general information and can change. They should be reconfirmed with the HPR Properties team before making any decision. Listings do not constitute an offer.', 'Images may be representative. Floor areas and other measurements are approximate.'] },
+  { id: 'no-advice', title: 'No financial or legal advice', body: ['Information on this website, including investment information, is general and is not financial, legal or tax advice. Returns are not guaranteed. Please seek independent professional advice.'] },
+  { id: 'viewings', title: 'Enquiries and viewings', body: ['Submitting an enquiry does not confirm a viewing, reservation or transaction. A viewing is confirmed only when the HPR Properties team confirms it with you.'] },
+  { id: 'intellectual-property', title: 'Intellectual property', body: ['The HPR Properties name, logo and website content may not be reproduced without permission. [Confirm image licensing and ownership.]'] },
+  { id: 'third-party-links', title: 'Third-party links', body: ['This website links to third-party services such as WhatsApp and Google Maps. We are not responsible for their content or practices.'] },
+  { id: 'liability', title: 'Limitation of liability', body: ['[Wording to be provided by legal adviser.]'] },
+  { id: 'regulatory', title: 'Licensing and regulatory information', body: ['[Brokerage licence, RERA / ORN and advertising permit details to be added.]'] },
+  { id: 'governing-law', title: 'Governing law', body: ['[Governing law and jurisdiction to be confirmed — e.g. the laws of the Emirate of Dubai and the federal laws of the UAE.]'] },
+];
+---
+
+<LegalPage title="Terms & Conditions" description="Terms governing the use of the HPR Properties website." sections={sections} />

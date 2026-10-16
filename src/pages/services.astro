@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site, whatsappLink, photo } from '../data/site';
+import { services, optionalServices, steps } from '../data/home';
+
+const all = [
+  ...services,
+  ...(site.features.holidayHomes ? [optionalServices.holidayHomes] : []),
+  ...(site.features.propertyManagement ? [optionalServices.propertyManagement] : []),
+];
+const images: Record<string, string> = {
+  'buying-assistance': '1560448204-e02f11c3d0e2',
+  'selling-assistance': '1600585154340-be6161a56a0c',
+  'rental-assistance': '1502672260266-1c1ef2d93688',
+  'off-plan-guidance': '1582407947304-fd86f028f716',
+  'investment-consultation': '1486406146926-c627a92ad1ab',
+  'property-listing-enquiries': '1600047509807-ba8f99d2cdde',
+  'holiday-homes': '1613490493576-7fde63acd811',
+  'property-management': '1545324418-cc1a3fa10c00',
+};
+---
+
+<BaseLayout
+  title="Our Services"
+  description="Buying, selling and rental assistance, off-plan guidance, property investment consultation and listing enquiries in Dubai — HPR Properties."
+>
+  <PageHero
+    title="Our Services"
+    eyebrow="How we can help"
+    intro="Support for buyers, tenants, owners and investors exploring property in Dubai."
+  >
+    <ul class="svc-jump">
+      {all.map((s) => <li><a href={`#${s.id}`}>{s.title}</a></li>)}
+    </ul>
+  </PageHero>
+
+  <section class="section svc-list">
+    <div class="container">
+      {all.map((s, i) => (
+        <article id={s.id} class:list={['svc-row reveal', { 'svc-row--flip': i % 2 === 1 }]}>
+          <div class="svc-row__media">
+            <img src={photo(images[s.id], 900, 640)} alt="" width="900" height="640" loading="lazy" decoding="async" />
+          </div>
+          <div class="svc-row__text">
+            <span class="svc-row__icon"><Icon name={s.icon} size={24} /></span>
+            <p class="svc-row__num">{String(i + 1).padStart(2, '0')}</p>
+            <h2>{s.title}</h2>
+            <p>{s.long}</p>
+            <div class="svc-row__actions">
+              <a href={`/contact?enquiry=${s.enquiry}`} class="btn">Enquire <Icon name="arrow" size={18} /></a>
+              <a href={whatsappLink(`Hello HPR Properties, I'd like to know more about ${s.title}.`)} class="btn btn--ghost btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> WhatsApp</a>
+            </div>
+          </div>
+        </article>
+      ))}
+      <p class="svc-list__note">
+        Services are provided subject to applicable UAE and Dubai real estate requirements. Please confirm details, fees and timelines with our team.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="container">
+      <div class="heading heading--center reveal">
+        <p class="eyebrow">How it works</p>
+        <h2>Four simple steps</h2>
+      </div>
+      <ol class="steps">
+        {steps.map((s, i) => (
+          <li class="reveal">
+            <span>{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <CtaBand title="Not sure which service you need?" text="Tell us what you're planning and our team will point you in the right direction." />
+</BaseLayout>
+
+<style>
+  .svc-jump { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  .svc-jump a { display: inline-block; padding: 0.45rem 0.95rem; border-radius: 999px; background: #fff; border: 1px solid var(--c-line); font-size: var(--fs-sm); font-weight: 500; color: var(--c-ink); transition: background-color .2s, color .2s; }
+  .svc-jump a:hover { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
+
+  .svc-list .container { display: grid; gap: clamp(3rem, 2rem + 4vw, 6rem); }
+  .svc-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: center; scroll-margin-top: calc(var(--header-h) + 2rem); }
+  .svc-row--flip .svc-row__media { order: 2; }
+  .svc-row__media img { width: 100%; aspect-ratio: 45 / 32; object-fit: cover; border-radius: var(--radius-lg); }
+  .svc-row__text { display: grid; gap: 1rem; justify-items: start; }
+  .svc-row__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--c-teal-soft); color: var(--c-teal-ink); }
+  .svc-row__num { font-family: var(--font-display); font-size: var(--fs-sm); font-weight: 600; letter-spacing: .08em; color: var(--c-muted); }
+  .svc-row__text h2 { font-size: var(--fs-xl); }
+  .svc-row__text > p:not(.svc-row__num) { font-size: 1.08rem; max-width: 52ch; }
+  .svc-row__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+  .svc-list__note { font-size: var(--fs-sm); color: var(--c-muted); text-align: center; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .steps li { display: grid; gap: 0.6rem; align-content: start; padding: 2rem 1.6rem; background: #fff; border-radius: var(--radius-lg); }
+  .steps span { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-sm); color: var(--c-teal-ink); }
+  .steps h3 { font-size: 1.1rem; font-weight: 500; }
+  .steps p { color: var(--c-muted); font-size: .95rem; }
+
+  @media (max-width: 960px) { .steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 820px) {
+    .svc-row { grid-template-columns: 1fr; }
+    .svc-row--flip .svc-row__media { order: 0; }
+  }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: 1fr; }
+    .svc-row__actions .btn { flex: 1 1 100%; }
+  }
+</style>

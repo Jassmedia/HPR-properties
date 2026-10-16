@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import PropertySearch from '../../components/PropertySearch.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../data/site';
+import { properties } from '../../data/properties';
+---
+
+<BaseLayout
+  title="Properties in Dubai — Buy, Rent & Off-Plan"
+  description="Browse apartments, villas, townhouses, penthouses and off-plan properties in Dubai. Filter by location, price in AED, property type and bedrooms."
+>
+  <PageHero
+    title="Properties in Dubai"
+    eyebrow="Buy · Rent · Off-Plan"
+    intro="Browse properties available through HPR Properties. Filter by location, price, property type and bedrooms."
+  />
+
+  <section class="listings">
+    <div class="container">
+      <div class="listings__search">
+        <PropertySearch variant="page" />
+      </div>
+
+      <div class="listings__bar">
+        <p class="listings__count" aria-live="polite" data-count>{properties.length} properties</p>
+        <div class="listings__chips" data-chips></div>
+        <label class="listings__sort">
+          <span>Sort by</span>
+          <select data-sort>
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="beds-desc">Bedrooms: most first</option>
+          </select>
+        </label>
+      </div>
+
+      {site.isDraft && (
+        <p class="draft-note listings__note">All listings shown are clearly labelled samples to preview the layout and filters. They will be replaced with verified HPR listings.</p>
+      )}
+
+      <ul class="listings__grid" data-grid>
+        {properties.map((p, i) => (
+          <li
+            data-purpose={p.purpose}
+            data-location={p.area}
+            data-type={p.type}
+            data-price={p.price ?? ''}
+            data-beds={p.beds}
+            data-featured={p.featured ? '1' : '0'}
+            data-order={i}
+          >
+            <PropertyCard property={p} />
+          </li>
+        ))}
+      </ul>
+
+      <div class="listings__empty" hidden data-empty>
+        <Icon name="search" size={36} />
+        <h2>No properties match these filters</h2>
+        <p>Try widening your search, or tell us what you're looking for and our team will share relevant options.</p>
+        <div class="listings__empty-actions">
+          <a href="/properties" class="btn btn--ghost">Reset Filters</a>
+          <a href="/contact" class="btn">Send Your Requirements</a>
+        </div>
+      </div>
+
+      <p class="listings__disclaimer">
+        Properties marked “Price on Request” are excluded when a price range is set. Prices and availability can change and should be reconfirmed with the HPR Properties team.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand title="Can't find the right property?" text="Share your requirements and our team will help you explore relevant options." />
+</BaseLayout>
+
+<script>
+  const grid = document.querySelector<HTMLUListElement>('[data-grid]')!;
+  const items = [...grid.querySelectorAll<HTMLLIElement>(':scope > li')];
+  const countEl = document.querySelector<HTMLElement>('[data-count]')!;
+  const emptyEl = document.querySelector<HTMLElement>('[data-empty]')!;
+  const chipsEl = document.querySelector<HTMLElement>('[data-chips]')!;
+  const sortEl = document.querySelector<HTMLSelectElement>('[data-sort]')!;
+  const q = new URLSearchParams(location.search);
+
+  const f = {
+    purpose: q.get('purpose') || '',
+    location: q.get('location') || '',
+    type: q.get('type') || '',
+    min: Number(q.get('min')) || 0,
+    max: Number(q.get('max')) || 0,
+    beds: q.get('beds') ?? '',
+    featured: q.get('featured') === '1',
+  };
+  sortEl.value = q.get('sort') || 'featured';
+
+  const fmt = (n: number) => 'AED ' + new Intl.NumberFormat('en-AE').format(n);
+  const purposeTitle: Record<string, string> = { buy: 'Properties for Sale', rent: 'Properties for Rent', 'off-plan': 'Off-Plan Properties' };
+  const h1 = document.querySelector('h1');
+  if (f.featured && h1) h1.textContent = 'Featured Properties';
+  else if (purposeTitle[f.purpose] && h1) h1.textContent = `${purposeTitle[f.purpose]} in Dubai`;
+
+  const matches = (li: HTMLLIElement) => {
+    const d = li.dataset;
+    const price = d.price ? Number(d.price) : null;
+    if (f.purpose && d.purpose !== f.purpose) return false;
+    if (f.location && d.location !== f.location) return false;
+    if (f.type && d.type !== f.type) return false;
+    if ((f.min || f.max) && price === null) return false;
+    if (f.min && price !== null && price < f.min) return false;
+    if (f.max && price !== null && price > f.max) return false;
+    if (f.beds !== '') {
+      const b = Number(d.beds);
+      if (f.beds === '0' ? b !== 0 : b < Number(f.beds)) return false;
+    }
+    if (f.featured && d.featured !== '1') return false;
+    return true;
+  };
+
+  const sorters: Record<string, (a: HTMLLIElement, b: HTMLLIElement) => number> = {
+    featured: (a, b) => Number(b.dataset.featured) - Number(a.dataset.featured) || Number(a.dataset.order) - Number(b.dataset.order),
+    'price-asc': (a, b) => (Number(a.dataset.price) || Infinity) - (Number(b.dataset.price) || Infinity),
+    'price-desc': (a, b) => (Number(b.dataset.price) || -1) - (Number(a.dataset.price) || -1),
+    'beds-desc': (a, b) => Number(b.dataset.beds) - Number(a.dataset.beds),
+  };
+
+  function render() {
+    const sorted = [...items].sort(sorters[sortEl.value] || sorters.featured);
+    let n = 0;
+    sorted.forEach((li) => {
+      const ok = matches(li);
+      li.hidden = !ok;
+      if (ok) n++;
+      grid.appendChild(li);
+    });
+    countEl.textContent = `${n} ${n === 1 ? 'property' : 'properties'}`;
+    emptyEl.hidden = n > 0;
+    grid.hidden = n === 0;
+  }
+
+  // Active filter chips (each removes its own filter)
+  const chips: [string, string][] = [];
+  const purposeLabel: Record<string, string> = { buy: 'Buy', rent: 'Rent', 'off-plan': 'Off-Plan' };
+  if (f.purpose) chips.push(['purpose', purposeLabel[f.purpose] ?? f.purpose]);
+  if (f.location) chips.push(['location', f.location]);
+  if (f.type) chips.push(['type', f.type]);
+  if (f.min) chips.push(['min', `From ${fmt(f.min)}`]);
+  if (f.max) chips.push(['max', `Up to ${fmt(f.max)}`]);
+  if (f.beds !== '') chips.push(['beds', f.beds === '0' ? 'Studio' : `${f.beds}+ beds`]);
+  if (f.featured) chips.push(['featured', 'Featured only']);
+  chipsEl.innerHTML = chips
+    .map(([k, label]) => {
+      const p = new URLSearchParams(location.search);
+      p.delete(k);
+      const qs = p.toString();
+      return `<a class="chip" href="/properties${qs ? '?' + qs : ''}" aria-label="Remove filter: ${label}">${label} <span aria-hidden="true">×</span></a>`;
+    })
+    .join('');
+
+  sortEl.addEventListener('change', () => {
+    const p = new URLSearchParams(location.search);
+    if (sortEl.value === 'featured') p.delete('sort'); else p.set('sort', sortEl.value);
+    history.replaceState(null, '', `/properties${p.toString() ? '?' + p : ''}`);
+    render();
+  });
+
+  render();
+</script>
+
+<style>
+  .listings { padding-block: 0 2rem; }
+  .listings__search { margin-top: -2rem; position: relative; z-index: 2; }
+  .listings__bar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 2.5rem 0 1.5rem; }
+  .listings__count { font-family: var(--font-display); font-weight: 600; color: var(--c-ink); font-size: 1.1rem; }
+  .listings__chips { display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1; }
+  .listings__chips :global(.chip) {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 999px;
+    background: var(--c-teal-soft); color: var(--c-teal-ink); font-size: var(--fs-sm); font-weight: 500;
+  }
+  .listings__chips :global(.chip:hover) { background: var(--c-ink); color: #fff; }
+  .listings__sort { display: flex; align-items: center; gap: 0.6rem; font-size: var(--fs-sm); color: var(--c-muted); margin-left: auto; }
+  .listings__sort select { min-height: 42px; padding: 0.4rem 0.8rem; border: 1px solid var(--c-line); border-radius: 999px; background: #fff; color: var(--c-ink); font-weight: 500; }
+  .listings__note { margin-bottom: 1.5rem; }
+  .listings__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .listings__grid > li[hidden] { display: none; }
+  .listings__empty { display: grid; justify-items: center; gap: 0.9rem; text-align: center; padding: 4rem 1.5rem; border: 1px dashed var(--c-line); border-radius: var(--radius-lg); color: var(--c-muted); }
+  .listings__empty h2 { font-size: var(--fs-lg); }
+  .listings__empty p { max-width: 46ch; }
+  .listings__empty-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 0.5rem; }
+  .listings__disclaimer { margin-top: 2rem; font-size: var(--fs-sm); color: var(--c-muted); }
+  @media (max-width: 1080px) { .listings__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) {
+    .listings__grid { grid-template-columns: 1fr; }
+    .listings__sort { margin-left: 0; width: 100%; }
+    .listings__sort select { flex: 1; }
+  }
+</style>

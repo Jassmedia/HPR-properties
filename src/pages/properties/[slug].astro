@@ -1,0 +1,243 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import EnquiryForm from '../../components/EnquiryForm.astro';
+import { site, whatsappLink, photo, photoSrcset } from '../../data/site';
+import {
+  properties, type Property, formatPrice, bedsLabel, purposeLabel, amenitiesFor, descriptionFor, statusFor,
+} from '../../data/properties';
+
+export function getStaticPaths() {
+  return properties.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props as { p: Property };
+
+const nf = new Intl.NumberFormat('en-AE');
+const related = properties
+  .filter((r) => r.slug !== p.slug && (r.area === p.area || r.type === p.type))
+  .slice(0, 3);
+const ctx = `"${p.title}" in ${p.area} (Ref: ${p.ref})`;
+const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.area}, Dubai`)}`;
+
+const facts = [
+  { label: 'Price', value: formatPrice(p) },
+  { label: 'Purpose', value: purposeLabel[p.purpose] },
+  { label: 'Property type', value: p.type },
+  { label: 'Status', value: statusFor(p) },
+  { label: 'Bedrooms', value: bedsLabel(p.beds) },
+  { label: 'Bathrooms', value: String(p.baths) },
+  { label: 'Built-up area', value: `${nf.format(p.sizeSqft)} sq ft` },
+  { label: 'Reference', value: p.ref },
+];
+
+const listingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Residence',
+  name: p.title,
+  address: { '@type': 'PostalAddress', addressLocality: p.area, addressRegion: 'Dubai', addressCountry: 'AE' },
+  numberOfRooms: p.beds,
+  floorSize: { '@type': 'QuantitativeValue', value: p.sizeSqft, unitCode: 'FTK' },
+  image: p.gallery.map((g) => photo(g, 1200)),
+};
+---
+
+<BaseLayout
+  title={`${p.title}, ${p.area}${p.sample ? ' (Sample)' : ''}`}
+  description={`${bedsLabel(p.beds)} ${p.type.toLowerCase()} ${p.purpose === 'rent' ? 'for rent' : p.purpose === 'off-plan' ? '(off-plan)' : 'for sale'} in ${p.area}, Dubai. ${formatPrice(p)}. Enquire with HPR Properties.`}
+  image={photo(p.image, 1200, 630)}
+>
+  {!p.sample && <script slot="head" type="application/ld+json" set:html={JSON.stringify(listingSchema)} />}
+
+  <section class="pd">
+    <div class="container">
+      <nav aria-label="Breadcrumb" class="pd__crumbs">
+        <a href="/">Home</a> <span>/</span> <a href="/properties">Properties</a> <span>/</span>
+        <a href={`/properties?purpose=${p.purpose}`}>{purposeLabel[p.purpose]}</a> <span>/</span>
+        <span aria-current="page">{p.ref}</span>
+      </nav>
+
+      <!-- Gallery -->
+      <div class="gallery" data-gallery>
+        <figure class="gallery__main">
+          <img
+            src={photo(p.gallery[0], 1400, 875)}
+            srcset={photoSrcset(p.gallery[0], [800, 1400, 2000], 1.6)}
+            sizes="(max-width: 900px) 100vw, 66vw"
+            alt={`${p.title} — photo 1 of ${p.gallery.length}`}
+            width="1400"
+            height="875"
+            fetchpriority="high"
+            data-gallery-main
+          />
+          <span class="gallery__badges">
+            <span class="badge badge--dark">{purposeLabel[p.purpose]}</span>
+            {p.sample && <span class="badge badge--sample">Sample listing</span>}
+          </span>
+          <span class="gallery__count" data-gallery-count>1 / {p.gallery.length}</span>
+        </figure>
+        {p.gallery.length > 1 && (
+          <ul class="gallery__thumbs" aria-label="Choose photo">
+            {p.gallery.map((g, i) => (
+              <li>
+                <button type="button" aria-label={`Show photo ${i + 1}`} aria-pressed={i === 0 ? 'true' : 'false'} data-src={photo(g, 1400, 875)} data-srcset={photoSrcset(g, [800, 1400, 2000], 1.6)} data-index={i + 1}>
+                  <img src={photo(g, 240, 160)} alt="" width="240" height="160" loading="lazy" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="pd__layout">
+        <div class="pd__main">
+          <header class="pd__head">
+            <p class="pd__area"><Icon name="pin" size={16} /> {p.area}, Dubai · <a href={mapHref} target="_blank" rel="noopener">View on map</a></p>
+            <h1>{p.title}</h1>
+            <ul class="pd__keyfacts">
+              <li><Icon name="bed" size={18} /> {bedsLabel(p.beds)}</li>
+              <li><Icon name="bath" size={18} /> {p.baths} Bath{p.baths > 1 ? 's' : ''}</li>
+              <li><Icon name="size" size={18} /> {nf.format(p.sizeSqft)} sq ft</li>
+              <li><Icon name="home" size={18} /> {p.type}</li>
+            </ul>
+          </header>
+
+          <section class="pd__block" aria-labelledby="desc">
+            <h2 id="desc">Description</h2>
+            {descriptionFor(p).map((para) => <p>{para}</p>)}
+          </section>
+
+          <section class="pd__block" aria-labelledby="details">
+            <h2 id="details">Property details</h2>
+            <dl class="pd__facts">
+              {facts.map((f) => <div><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
+            </dl>
+          </section>
+
+          <section class="pd__block" aria-labelledby="amen">
+            <h2 id="amen">Amenities{p.sample && <span class="pd__sample"> (sample)</span>}</h2>
+            <ul class="pd__amenities">
+              {amenitiesFor(p).map((a) => <li><span class="pd__tick" aria-hidden="true"></span>{a}</li>)}
+            </ul>
+          </section>
+
+          <section class="pd__block" aria-labelledby="enq">
+            <h2 id="enq">Request a viewing</h2>
+            <p class="pd__muted">Send your details and preferred time. A viewing is confirmed once our team confirms it with you.</p>
+            <EnquiryForm id="viewing" property={ctx} />
+          </section>
+        </div>
+
+        <aside class="pd__aside">
+          <div class="pd__card">
+            <p class="pd__price-label">{p.purpose === 'rent' ? 'Annual rent' : 'Price'}</p>
+            <p class="pd__price">{formatPrice(p)}</p>
+            <p class="pd__ref">Ref: {p.ref}</p>
+            <div class="pd__card-actions">
+              <a href={whatsappLink(`Hello HPR Properties, I'm interested in ${ctx}. Please share more details.`)} class="btn" target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> WhatsApp</a>
+              <a href={site.contact.phoneHref} class="btn btn--ghost"><Icon name="phone" size={18} /> Call {site.contact.phoneDisplay}</a>
+              <a href="#enq" class="btn btn--ghost"><Icon name="mail" size={18} /> Request a Viewing</a>
+            </div>
+            <p class="pd__notice">Price and availability can change and should be reconfirmed with the HPR Properties team.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section section--sand" aria-labelledby="related-title">
+      <div class="container">
+        <div class="heading-row">
+          <div class="heading"><p class="eyebrow">You may also like</p><h2 id="related-title">Related properties</h2></div>
+          <a href="/properties" class="link-arrow">All Properties <Icon name="arrow" size={16} /></a>
+        </div>
+        <ul class="pd__related">{related.map((r) => <li><PropertyCard property={r} /></li>)}</ul>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+    const main = g.querySelector<HTMLImageElement>('[data-gallery-main]')!;
+    const count = g.querySelector<HTMLElement>('[data-gallery-count]')!;
+    const total = g.querySelectorAll('button[data-src]').length;
+    g.querySelectorAll<HTMLButtonElement>('button[data-src]').forEach((b) => {
+      b.addEventListener('click', () => {
+        main.srcset = b.dataset.srcset!;
+        main.src = b.dataset.src!;
+        main.alt = main.alt.replace(/photo \d+/, `photo ${b.dataset.index}`);
+        count.textContent = `${b.dataset.index} / ${total}`;
+        g.querySelectorAll('button[aria-pressed]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+      });
+    });
+  });
+</script>
+
+<style>
+  .pd { padding-block: 1.5rem clamp(3rem, 2rem + 4vw, 5rem); }
+  .pd__crumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; font-size: var(--fs-sm); color: var(--c-muted); margin-bottom: 1.25rem; }
+  .pd__crumbs a:hover { color: var(--c-ink); text-decoration: underline; }
+  .pd__crumbs [aria-current] { color: var(--c-ink); }
+
+  .gallery { display: grid; gap: 0.75rem; }
+  .gallery__main { position: relative; margin: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--c-sand); aspect-ratio: 16 / 9; max-height: 620px; width: 100%; }
+  .gallery__main img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery__badges { position: absolute; top: 16px; left: 16px; display: flex; gap: 0.4rem; }
+  .gallery__count { position: absolute; right: 16px; bottom: 16px; padding: 0.3rem 0.7rem; border-radius: 999px; background: rgba(22,24,27,.75); color: #fff; font-size: var(--fs-sm); }
+  .gallery__thumbs { display: flex; gap: 0.6rem; overflow-x: auto; }
+  .gallery__thumbs button { display: block; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; cursor: pointer; background: none; width: 120px; aspect-ratio: 3 / 2; opacity: 0.7; transition: opacity .2s, border-color .2s; }
+  .gallery__thumbs button img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery__thumbs button[aria-pressed='true'], .gallery__thumbs button:hover { opacity: 1; border-color: var(--c-ink); }
+
+  .pd__layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: clamp(2rem, 1rem + 3vw, 4rem); margin-top: 2.5rem; align-items: start; }
+  .pd__head { display: grid; gap: 0.9rem; padding-bottom: 2rem; border-bottom: 1px solid var(--c-line); }
+  .pd__area { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; color: var(--c-muted); font-size: var(--fs-sm); }
+  .pd__area :global(.icon) { color: var(--c-teal); }
+  .pd__area a { color: var(--c-teal-ink); text-decoration: underline; text-underline-offset: 2px; }
+  .pd__head h1 { font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem); }
+  .pd__keyfacts { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .pd__keyfacts li { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 0.9rem; border-radius: 999px; background: var(--c-sand); font-size: var(--fs-sm); color: var(--c-ink); }
+
+  .pd__block { display: grid; gap: 1rem; padding-block: 2rem; border-bottom: 1px solid var(--c-line); }
+  .pd__block:last-child { border-bottom: 0; }
+  .pd__block h2 { font-size: var(--fs-lg); }
+  .pd__sample { font-size: var(--fs-sm); font-weight: 400; color: var(--c-muted); }
+  .pd__muted { color: var(--c-muted); }
+  .pd__facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; margin: 0; border: 1px solid var(--c-line); border-radius: var(--radius); overflow: hidden; }
+  .pd__facts div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--c-line); }
+  .pd__facts div:nth-child(odd) { border-right: 1px solid var(--c-line); }
+  .pd__facts div:nth-last-child(-n+2) { border-bottom: 0; }
+  .pd__facts dt { color: var(--c-muted); font-size: var(--fs-sm); }
+  .pd__facts dd { margin: 0; font-weight: 500; color: var(--c-ink); text-align: right; }
+  .pd__amenities { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem 1.25rem; }
+  .pd__amenities li { display: flex; align-items: center; gap: 0.6rem; }
+  .pd__tick { width: 18px; height: 18px; border-radius: 50%; background: var(--c-teal-soft); position: relative; flex: none; }
+  .pd__tick::after { content: ''; position: absolute; left: 6px; top: 3px; width: 5px; height: 9px; border: solid var(--c-teal-ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+  .pd__aside { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+  .pd__card { display: grid; gap: 0.5rem; padding: 1.75rem; border: 1px solid var(--c-line); border-radius: var(--radius-lg); box-shadow: var(--shadow); background: #fff; }
+  .pd__price-label { font-size: var(--fs-xs); letter-spacing: .14em; text-transform: uppercase; color: var(--c-muted); font-weight: 600; }
+  .pd__price { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--c-ink); line-height: 1.2; }
+  .pd__ref { font-size: var(--fs-sm); color: var(--c-muted); }
+  .pd__card-actions { display: grid; gap: 0.6rem; margin-top: 1rem; }
+  .pd__notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--c-muted); }
+  .pd__related { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+  @media (max-width: 960px) {
+    .pd__layout { grid-template-columns: 1fr; }
+    .pd__aside { position: static; order: -1; }
+    .pd__related { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .gallery__main { aspect-ratio: 4 / 3; }
+    .gallery__thumbs button { width: 88px; }
+    .pd__facts { grid-template-columns: 1fr; }
+    .pd__facts div:nth-child(odd) { border-right: 0; }
+    .pd__facts div:nth-last-child(2) { border-bottom: 1px solid var(--c-line); }
+    .pd__amenities { grid-template-columns: 1fr 1fr; }
+    .pd__related { grid-template-columns: 1fr; }
+  }
+</style>

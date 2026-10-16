@@ -1,0 +1,17 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+
+const sections = [
+  { id: 'who-we-are', title: 'Who we are', body: ['This Privacy Policy explains how HPR Properties ("we", "us") handles personal information collected through this website. [Registered company name, licence details and registered address to be confirmed.]'] },
+  { id: 'information-we-collect', title: 'Information we collect', body: ['When you send an enquiry, you may provide your name, phone / WhatsApp number, email address, enquiry type, preferred location, budget and message.', '[Confirm whether analytics, cookies or other tracking tools are used and describe them here.]'] },
+  { id: 'how-enquiries-are-sent', title: 'How enquiries are sent', body: ['Enquiry forms on this website do not store your details on the website. When you submit a form, your details are passed to WhatsApp or your email application, and you choose whether to send them to us. [Update this section if a CRM or email delivery service is connected.]'] },
+  { id: 'how-we-use-information', title: 'How we use your information', body: ['We use the information you provide to respond to your enquiry, share relevant property information, arrange viewings or consultations, and follow up on your request.'] },
+  { id: 'sharing', title: 'Sharing your information', body: ['[Describe when information may be shared — for example with property owners, developers or service providers involved in your enquiry, or where required by law.]'] },
+  { id: 'retention', title: 'How long we keep information', body: ['[Retention period to be confirmed.]'] },
+  { id: 'your-rights', title: 'Your rights', body: ['[Describe rights to access, correct or delete personal information under applicable UAE law, and how to make a request.]'] },
+  { id: 'third-party-services', title: 'Third-party services', body: ['This website links to third-party services such as WhatsApp and Google Maps, and loads fonts and images from third-party providers. Their own privacy policies apply when you use them.'] },
+  { id: 'changes', title: 'Changes to this policy', body: ['We may update this policy from time to time. The latest version will always be available on this page.'] },
+];
+---
+
+<LegalPage title="Privacy Policy" description="How HPR Properties collects and uses personal information submitted through this website." sections={sections} />

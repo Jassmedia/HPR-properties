@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FounderBlock from '../components/FounderBlock.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+import { founder } from '../data/home';
+
+/** Add approved team profiles here: { name, role, photo }. Section is hidden while empty (except in draft preview). */
+const team: { name: string; role: string; photo?: string }[] = [];
+---
+
+<BaseLayout title="Founder & Team" description={`Meet ${founder.name}, ${founder.role}, and the team behind HPR Properties in Dubai.`}>
+  <PageHero title="Founder & Team" eyebrow="Leadership" intro="The people behind HPR Properties." />
+
+  <FounderBlock />
+
+  {(team.length > 0 || site.isDraft) && (
+    <section class="section section--sand" aria-labelledby="team-title">
+      <div class="container">
+        <div class="heading reveal">
+          <p class="eyebrow">Our team</p>
+          <h2 id="team-title">Meet the team</h2>
+        </div>
+        {team.length > 0 ? (
+          <ul class="team">
+            {team.map((m) => (
+              <li class="reveal">
+                {m.photo ? <img src={m.photo} alt={m.name} width="480" height="600" loading="lazy" /> : <div class="team__ph"><Icon name="user" size={40} /></div>}
+                <h3>{m.name}</h3>
+                <p>{m.role}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <>
+            <ul class="team" aria-hidden="true">
+              {[1, 2, 3].map(() => (
+                <li><div class="team__ph"><Icon name="user" size={40} /></div><h3>[Team member name]</h3><p>[Role]</p></li>
+              ))}
+            </ul>
+            <p class="draft-note team__note">Team profiles (names, roles, approved photos) to be provided by HPR Properties. This section is hidden on the live site until they are added.</p>
+          </>
+        )}
+      </div>
+    </section>
+  )}
+
+  <CtaBand title="Speak with our team" text="Have a property question? Contact HPR Properties and we'll respond using your preferred contact method." />
+</BaseLayout>
+
+<style>
+  .team { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .team li { display: grid; gap: 0.35rem; }
+  .team img, .team__ph { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 0.75rem; }
+  .team__ph { display: grid; place-items: center; color: var(--c-muted); background: repeating-linear-gradient(135deg, #fff 0 14px, var(--c-sand-2) 14px 28px); border: 1px dashed #d4cfc5; }
+  .team h3 { font-size: 1.1rem; font-weight: 500; }
+  .team p { color: var(--c-muted); }
+  .team__note { margin-top: 1.5rem; }
+  @media (max-width: 760px) { .team { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .team { grid-template-columns: 1fr; } }
+</style>

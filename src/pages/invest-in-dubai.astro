@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { photo } from '../data/site';
+
+const options = [
+  {
+    icon: 'key',
+    title: 'Ready properties',
+    text: 'Completed homes that can be viewed in person, with the option to move in or lease out after purchase.',
+    href: '/properties?purpose=buy',
+  },
+  {
+    icon: 'crane',
+    title: 'Off-plan properties',
+    text: 'Units bought from a developer before or during construction, usually with a staged payment plan. Review the developer, timeline and payment terms carefully.',
+    href: '/properties?purpose=off-plan',
+  },
+  {
+    icon: 'home',
+    title: 'Rental investment',
+    text: 'Properties bought to lease to tenants. Consider the area, likely demand, service charges and periods without a tenant.',
+    href: '/properties',
+  },
+];
+
+const costs = [
+  'Purchase price and any deposit required',
+  'Dubai Land Department registration / transfer fees',
+  'Agency and conveyancing fees',
+  'Mortgage arrangement and valuation costs, if financing',
+  'Annual service charges and community fees',
+  'Maintenance, furnishing and insurance',
+  'Utility connection and running costs',
+  'Vacancy periods between tenancies',
+];
+
+const considerations = [
+  { title: 'Location', text: 'Access to transport, schools, workplaces and amenities affects both lifestyle and demand.' },
+  { title: 'Property type', text: 'Apartments, villas and townhouses differ in running costs, tenant profile and maintenance.' },
+  { title: 'Total costs', text: 'Look beyond the purchase price to fees, service charges and ongoing expenses.' },
+  { title: 'Timeline', text: 'Off-plan completion dates can change. Plan for your own time horizon and cash flow.' },
+];
+---
+
+<BaseLayout
+  title="Invest in Dubai"
+  description="Information to help you compare property types, locations and costs when considering a property investment in Dubai. Returns are not guaranteed."
+>
+  <PageHero
+    title="Invest in Dubai Property"
+    eyebrow="Investment guidance"
+    intro="Compare property types, locations, purchase costs and available rental information — and discuss your plans with our team."
+    image="1486406146926-c627a92ad1ab"
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="heading reveal">
+        <p class="eyebrow">Ways to invest</p>
+        <h2>Choose the approach that suits your plans</h2>
+      </div>
+      <ul class="opts">
+        {options.map((o, i) => (
+          <li class="reveal" style={`transition-delay:${i * 80}ms`}>
+            <span class="opts__icon"><Icon name={o.icon} size={24} /></span>
+            <h3>{o.title}</h3>
+            <p>{o.text}</p>
+            <a href={o.href} class="link-arrow">Browse <Icon name="arrow" size={16} /></a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="container split">
+      <div class="reveal">
+        <div class="heading">
+          <p class="eyebrow">Before you decide</p>
+          <h2>Key things to consider</h2>
+        </div>
+        <dl class="consider">
+          {considerations.map((c) => <div><dt>{c.title}</dt><dd>{c.text}</dd></div>)}
+        </dl>
+      </div>
+      <div class="costs reveal">
+        <h3>Costs to plan for</h3>
+        <ul>
+          {costs.map((c) => <li><span class="costs__dot" aria-hidden="true"></span>{c}</li>)}
+        </ul>
+        <p class="costs__note">Fees and requirements change. Confirm current amounts with the relevant authorities, your lender and our team before committing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container consult">
+      <div class="consult__media reveal">
+        <img src={photo('1497366216548-37526070297c', 900, 700)} alt="Bright modern office meeting space" width="900" height="700" loading="lazy" decoding="async" />
+      </div>
+      <div class="consult__text reveal">
+        <p class="eyebrow">Investment consultation</p>
+        <h2>Talk it through with HPR Properties</h2>
+        <p>Share your budget, preferred areas and goals. We can help you compare property types, locations, purchase costs and available rental information, so you can take informed next steps.</p>
+        <a href="/contact?enquiry=general" class="btn">Book a Consultation <Icon name="arrow" size={18} /></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="disclaimer">
+    <div class="container">
+      <p>
+        <strong>Important:</strong> Information on this page is general and is not financial, legal or tax advice. Property values and rental income can go down as well as up. Returns are not guaranteed and depend on market conditions and costs. Please seek independent professional advice before making an investment decision.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand title="Ready to explore investment options?" text="Tell us your requirements and our team will help you explore relevant options." />
+</BaseLayout>
+
+<style>
+  .opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .opts li { display: grid; gap: 0.7rem; align-content: start; justify-items: start; padding: 2rem 1.75rem; border: 1px solid var(--c-line); border-radius: var(--radius-lg); }
+  .opts__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--c-teal-soft); color: var(--c-teal-ink); margin-bottom: 0.4rem; }
+  .opts h3 { font-size: 1.2rem; font-weight: 500; }
+  .opts p { color: var(--c-muted); }
+  .opts .link-arrow { margin-top: 0.5rem; }
+
+  .split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .consider { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem 2rem; margin: 0; }
+  .consider dt { font-family: var(--font-display); font-weight: 600; color: var(--c-ink); margin-bottom: 0.35rem; }
+  .consider dd { margin: 0; color: var(--c-muted); }
+  .costs { padding: 2rem; background: #fff; border-radius: var(--radius-lg); }
+  .costs h3 { font-size: 1.2rem; margin-bottom: 1.1rem; }
+  .costs ul { display: grid; gap: 0.75rem; }
+  .costs li { display: flex; gap: 0.75rem; align-items: baseline; }
+  .costs__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-teal); flex: none; transform: translateY(-2px); }
+  .costs__note { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--c-line); font-size: var(--fs-sm); color: var(--c-muted); }
+
+  .consult { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: center; }
+  .consult__media img { width: 100%; aspect-ratio: 9 / 7; object-fit: cover; border-radius: var(--radius-lg); }
+  .consult__text { display: grid; gap: 1.1rem; justify-items: start; }
+  .consult__text h2 { font-size: var(--fs-xl); }
+
+  .disclaimer .container > p { padding: 1.25rem 1.5rem; border-left: 3px solid var(--c-yellow); background: var(--c-sand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: var(--fs-sm); color: var(--c-text); }
+
+  @media (max-width: 960px) {
+    .opts { grid-template-columns: 1fr; }
+    .split, .consult { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) { .consider { grid-template-columns: 1fr; } }
+</style>

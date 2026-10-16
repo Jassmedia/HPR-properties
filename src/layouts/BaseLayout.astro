@@ -1,0 +1,151 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
+import { site, whatsappLink } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const { title, description = site.description, image, noindex = site.isDraft } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ?? new URL('/images/hpr-logo.webp', Astro.site).href;
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: site.name,
+  slogan: site.tagline,
+  url: Astro.site?.href,
+  logo: new URL('/images/hpr-logo.webp', Astro.site).href,
+  telephone: site.contact.phoneDisplay.replace(/\s/g, ''),
+  email: site.contact.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '19th Floor, Conrad Hotel, Office Tower, Sheikh Zayed Road',
+    addressLocality: 'Dubai',
+    addressCountry: 'AE',
+  },
+  areaServed: 'Dubai, United Arab Emirates',
+};
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#16181b" />
+    <link rel="icon" href="/images/hpr-logo.webp" type="image/webp" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600&display=swap"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    <script is:inline>document.documentElement.classList.remove('no-js');</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Mobile quick-contact bar -->
+    <div class="action-bar" aria-label="Quick contact">
+      <a href={site.contact.phoneHref} class="action-bar__btn"><Icon name="phone" size={18} /> Call</a>
+      <a href={whatsappLink('Hello HPR Properties, I would like to enquire about a property.')} class="action-bar__btn action-bar__btn--wa" target="_blank" rel="noopener">
+        <Icon name="whatsapp" size={18} /> WhatsApp
+      </a>
+    </div>
+
+    {site.isDraft && (
+      <div class="draft-ribbon" role="note">
+        Draft preview<span class="draft-ribbon__more"> · sample listings &amp; placeholder content</span>
+      </div>
+    )}
+
+    <script>
+      // Fade sections in as they scroll into view. Content stays visible unless this script runs,
+      // and a plain scroll check backs up IntersectionObserver (which can stall when rendering is throttled).
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let pending = [...document.querySelectorAll<HTMLElement>('.reveal')];
+
+      const show = (el: Element) => el.classList.add('is-visible');
+      const check = () => {
+        const limit = window.innerHeight * 0.95;
+        pending = pending.filter((el) => {
+          if (el.getBoundingClientRect().top < limit) { show(el); return false; }
+          return true;
+        });
+        if (!pending.length) {
+          window.removeEventListener('scroll', check);
+          window.removeEventListener('resize', check);
+        }
+      };
+
+      if (!reduced && pending.length) {
+        // Reveal whatever is already on screen before hiding the rest, so nothing flashes.
+        check();
+        document.documentElement.classList.add('reveal-ready');
+        window.addEventListener('scroll', check, { passive: true });
+        window.addEventListener('resize', check, { passive: true });
+        if ('IntersectionObserver' in window) {
+          const io = new IntersectionObserver(
+            (entries) => entries.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }),
+            { rootMargin: '0px 0px -5% 0px' },
+          );
+          pending.forEach((el) => io.observe(el));
+        }
+        // Jumps to an anchor (e.g. /services#off-plan-guidance) should reveal immediately.
+        window.addEventListener('hashchange', check);
+      }
+    </script>
+
+    <style>
+      .action-bar {
+        display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+        grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.6rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); border-top: 1px solid var(--c-line);
+      }
+      .action-bar__btn {
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 48px; border-radius: 999px;
+        font-family: var(--font-display); font-weight: 500; border: 1px solid var(--c-line); color: var(--c-ink);
+      }
+      .action-bar__btn--wa { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
+      @media (max-width: 560px) { .action-bar { display: grid; } }
+
+      .draft-ribbon {
+        position: fixed; left: 16px; bottom: 16px; z-index: 45; padding: 0.45rem 0.85rem; border-radius: 999px;
+        background: var(--c-yellow); color: var(--c-ink); font-size: 0.75rem; font-weight: 600; box-shadow: var(--shadow);
+        pointer-events: none;
+      }
+      @media (max-width: 560px) { .draft-ribbon { bottom: 84px; left: 12px; } .draft-ribbon__more { display: none; } }
+    </style>
+  </body>
+</html>

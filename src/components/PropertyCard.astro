@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import { whatsappLink, photo, photoSrcset } from '../data/site';
+import { type Property, formatPrice, bedsLabel, purposeLabel } from '../data/properties';
+
+interface Props { property: Property }
+const { property: p } = Astro.props;
+
+const href = `/properties/${p.slug}`;
+const waText = `Hello HPR Properties, I'm interested in "${p.title}" in ${p.area} (Ref: ${p.ref}). Please share more details.`;
+---
+
+<article class="pcard">
+  <a href={href} class="pcard__media" tabindex="-1" aria-hidden="true">
+    <img
+      src={photo(p.image, 720, 540)}
+      srcset={photoSrcset(p.image, [400, 720, 960], 4 / 3)}
+      sizes="(max-width: 700px) 85vw, (max-width: 1100px) 45vw, 380px"
+      alt=""
+      width="720"
+      height="540"
+      loading="lazy"
+      decoding="async"
+    />
+    <span class="pcard__badges">
+      <span class="badge badge--dark">{purposeLabel[p.purpose]}</span>
+      {p.sample && <span class="badge badge--sample">Sample listing</span>}
+    </span>
+  </a>
+
+  <div class="pcard__body">
+    <p class="pcard__area"><Icon name="pin" size={14} /> {p.area}</p>
+    <h3 class="pcard__title"><a href={href}>{p.title}</a></h3>
+    <p class="pcard__price">{formatPrice(p)}</p>
+
+    <ul class="pcard__facts" aria-label="Key facts">
+      <li><Icon name="bed" size={16} /> {bedsLabel(p.beds)}</li>
+      <li><Icon name="bath" size={16} /> {p.baths} Bath{p.baths > 1 ? 's' : ''}</li>
+      <li><Icon name="size" size={16} /> {new Intl.NumberFormat('en-AE').format(p.sizeSqft)} sq ft</li>
+    </ul>
+
+    <div class="pcard__actions">
+      <a href={href} class="btn btn--sm">View Details</a>
+      <a href={whatsappLink(waText)} class="btn btn--sm btn--ghost btn--whatsapp" target="_blank" rel="noopener" aria-label={`Enquire about ${p.title} on WhatsApp`}>
+        <Icon name="whatsapp" size={16} /> Enquire
+      </a>
+    </div>
+    <p class="pcard__ref">Ref: {p.ref}</p>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    display: flex; flex-direction: column; height: 100%;
+    background: #fff; border: 1px solid var(--c-line); border-radius: var(--radius-lg); overflow: hidden;
+    transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease), border-color 0.35s;
+  }
+  .pcard:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+  .pcard__media { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--c-sand); }
+  .pcard__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s var(--ease); }
+  .pcard:hover .pcard__media img { transform: scale(1.05); }
+  .pcard__badges { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .pcard__body { display: flex; flex-direction: column; gap: 0.55rem; padding: 1.25rem 1.35rem 1.2rem; flex: 1; }
+  .pcard__area { display: flex; align-items: center; gap: 0.35rem; font-size: var(--fs-sm); color: var(--c-muted); }
+  .pcard__area .icon { color: var(--c-teal); }
+  .pcard__title {
+    font-size: 1.12rem; font-weight: 500; line-height: 1.35; letter-spacing: -0.01em; min-height: 2.7em;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .pcard__title a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .pcard__price { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; color: var(--c-ink); }
+
+  .pcard__facts {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 0.25rem; padding-top: 0.85rem;
+    border-top: 1px solid var(--c-line); font-size: var(--fs-sm); color: var(--c-text);
+  }
+  .pcard__facts li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .pcard__facts .icon { color: var(--c-muted); }
+
+  .pcard__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: auto; padding-top: 0.9rem; }
+  .pcard__ref { font-size: 0.72rem; color: var(--c-muted); letter-spacing: 0.04em; }
+</style>

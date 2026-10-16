@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import Icon from '../components/Icon.astro';
+import { site, whatsappLink } from '../data/site';
+
+const socials = site.socials.filter((s) => s.url);
+const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Conrad Dubai Office Tower, Sheikh Zayed Road, Dubai')}`;
+---
+
+<BaseLayout
+  title="Contact Us"
+  description="Contact HPR Properties in Dubai. Call or WhatsApp +971 58 558 3567, email us, or send an enquiry about buying, renting, selling or off-plan property."
+>
+  <PageHero
+    title="Contact Us"
+    eyebrow="Get in touch"
+    intro="Have a property requirement, want to list a property, or need information about our services? Contact HPR Properties and tell us what you are looking for. Our team will review your enquiry and respond using your preferred contact method."
+  />
+
+  <section class="section contact">
+    <div class="container contact__inner">
+      <div class="contact__form">
+        <h2>Send an enquiry</h2>
+        <EnquiryForm id="contact-form" />
+      </div>
+
+      <aside class="contact__aside">
+        <div class="cinfo">
+          <a href={site.contact.phoneHref} class="cinfo__row">
+            <span class="cinfo__icon"><Icon name="phone" size={20} /></span>
+            <span><span class="cinfo__label">Call us</span>{site.contact.phoneDisplay}</span>
+          </a>
+          <a href={whatsappLink('Hello HPR Properties, I would like to enquire about a property.')} class="cinfo__row" target="_blank" rel="noopener">
+            <span class="cinfo__icon cinfo__icon--wa"><Icon name="whatsapp" size={20} /></span>
+            <span><span class="cinfo__label">WhatsApp</span>{site.contact.phoneDisplay}</span>
+          </a>
+          <a href={`mailto:${site.contact.email}`} class="cinfo__row">
+            <span class="cinfo__icon"><Icon name="mail" size={20} /></span>
+            <span><span class="cinfo__label">Email</span>{site.contact.email}</span>
+          </a>
+          <div class="cinfo__row">
+            <span class="cinfo__icon"><Icon name="pin" size={20} /></span>
+            <address>
+              <span class="cinfo__label">{site.contact.office.title}</span>
+              {site.contact.office.lines.map((l) => <Fragment>{l}<br /></Fragment>)}
+              <a href={mapHref} target="_blank" rel="noopener" class="cinfo__map">Open in Google Maps <Icon name="arrowUpRight" size={14} /></a>
+            </address>
+          </div>
+        </div>
+
+        {socials.length > 0 && (
+          <div class="cfollow">
+            <h2>Follow HPR Properties</h2>
+            <p>Follow us for property listings, Dubai area guides, new developments, real-estate tips, and company updates.</p>
+            <ul>
+              {socials.map((s) => (
+                <li><a href={s.url} target="_blank" rel="noopener"><Icon name={s.icon} size={18} /> {s.name}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact__inner { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .contact__form { display: grid; gap: 1.5rem; }
+  .contact__form > h2 { font-size: var(--fs-xl); }
+  .contact__aside { display: grid; gap: 1.5rem; position: sticky; top: calc(var(--header-h) + 1.5rem); }
+
+  .cinfo { display: grid; border: 1px solid var(--c-line); border-radius: var(--radius-lg); overflow: hidden; }
+  .cinfo__row { display: flex; gap: 1rem; align-items: flex-start; padding: 1.25rem 1.4rem; border-bottom: 1px solid var(--c-line); color: var(--c-ink); font-weight: 500; line-height: 1.5; }
+  .cinfo__row:last-child { border-bottom: 0; }
+  a.cinfo__row { transition: background-color .2s; }
+  a.cinfo__row:hover { background: var(--c-sand); }
+  .cinfo__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--c-teal-soft); color: var(--c-teal-ink); flex: none; }
+  .cinfo__icon--wa { background: #e7f6ee; color: var(--c-whatsapp); }
+  .cinfo__label { display: block; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted); margin-bottom: 0.2rem; }
+  .cinfo address { font-style: normal; font-weight: 400; color: var(--c-text); word-break: break-word; }
+  .cinfo__map { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; color: var(--c-teal-ink); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+
+  .cfollow { display: grid; gap: 0.75rem; padding: 1.5rem; background: var(--c-sand); border-radius: var(--radius-lg); }
+  .cfollow h2 { font-size: 1.15rem; }
+  .cfollow p { color: var(--c-muted); font-size: var(--fs-sm); }
+  .cfollow ul { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cfollow a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.95rem; border-radius: 999px; background: #fff; font-size: var(--fs-sm); font-weight: 500; color: var(--c-ink); }
+  .cfollow a:hover { background: var(--c-ink); color: #fff; }
+
+  @media (max-width: 900px) {
+    .contact__inner { grid-template-columns: 1fr; }
+    .contact__aside { position: static; order: -1; }
+  }
+</style>
